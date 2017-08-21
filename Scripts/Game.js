@@ -108,7 +108,7 @@ class Block {
  
     if (state.keys[39]) { // right
         this.x = Math.min(
-            window.innerWidth - 64, this.x + 5
+            window.innerWidth - this.width, this.x + 5
         );
     }
         
@@ -120,7 +120,7 @@ class Block {
  
     if (state.keys[40]) { // down
         this.y = Math.min(
-            window.innerHeight - 64, this.y + 5
+            window.innerHeight - this.height, this.y + 5
         );
     }
  
