@@ -1,3 +1,16 @@
+Array.matrix = function(numrows, numcols, initial){
+   var arr = [];
+   for (var i = 0; i < numrows; ++i){
+      var columns = [];
+      for (var j = 0; j < numcols; ++j){
+         columns[j] = initial;
+      }
+      arr[i] = columns;
+    }
+    return arr;
+}
+
+
 
 var renderer = new PIXI.autoDetectRenderer(
     window.innerWidth,
@@ -25,17 +38,42 @@ var state = {
 };
 
 var baseBlock;
+var worldGrid;
 
 function setup(){
     console.log("App Starting");
-    baseBlock = new Block("Test", 0, 0, 0, 100, 100, 0xFF700B);
+    worldGrid = Array.matrix(15,20,0);
+    drawGrid();
+    var blockHeight = Math.min(window.innerHeight / worldGrid.length, window.innerWidth / worldGrid[0].length);
+    var blockWidth = blockHeight; //window.innerWidth / worldGrid[0].length;
+    baseBlock = new Block("Test", 0, 0, 0, blockWidth, blockHeight, 0xFF700B);
     stage.addChild(baseBlock.graphics);
     animate();
 }
 
 
 
+function drawGrid() {
+    var graphics2 = new PIXI.Graphics();
+    // set a fill and line style
+    graphics2.lineStyle(4, 0xffd900, 1);
 
+    // draw a shape
+    
+    for(var r = 0; r<worldGrid.length; r++){
+        var newY = r * (window.innerHeight / worldGrid.length);
+        graphics2.moveTo(0,newY);
+        graphics2.lineTo(window.innerWidth, newY);
+    }
+
+    for(var r = 0; r<worldGrid[0].length; r++){
+        var newX = r * (window.innerWidth / worldGrid[0].length);
+        graphics2.moveTo(newX, 0);
+        graphics2.lineTo(newX, window.innerHeight);
+    }
+
+    stage.addChild(graphics2);
+}
 
 
  
