@@ -1,18 +1,17 @@
-Array.matrix = function(numrows, numcols, initial){
-   var arr = [];
-   for (var i = 0; i < numrows; ++i){
-      var columns = [];
-      for (var j = 0; j < numcols; ++j){
-         columns[j] = initial;
-      }
-      arr[i] = columns;
+Array.matrix = function (numrows, numcols, initial) {
+    var arr = [];
+    for (var i = 0; i < numrows; ++i) {
+        var columns = [];
+        for (var j = 0; j < numcols; ++j) {
+            columns[j] = initial;
+        }
+        arr[i] = columns;
     }
     return arr;
-}
+};
 
 
-
-var renderer = new PIXI.autoDetectRenderer(
+let renderer = new PIXI.autoDetectRenderer(
     window.innerWidth,
     window.innerHeight,
     {
@@ -23,8 +22,8 @@ var renderer = new PIXI.autoDetectRenderer(
     }
 );
 
-renderer.backgroundColor = 0x1099bb
- 
+renderer.backgroundColor = 0x1099bb;
+
 document.body.appendChild(renderer.view);
 
 var stage = new PIXI.Container();
@@ -40,43 +39,63 @@ var state = {
 var baseBlock;
 var worldGrid;
 
-function setup(){
+let screenScale = 9;
+
+var startXOffset;
+var startYOffset;
+
+var blockHeight;
+var blockWidth;
+
+function setup() {
     console.log("App Starting");
-    worldGrid = Array.matrix(15,20,0);
+    worldGrid = Array.matrix(15, 20, 0);
+    startXOffset = window.innerWidth / screenScale;
+    startYOffset = window.innerHeight / screenScale;
+    blockHeight = Math.min(window.innerHeight / worldGrid.length, window.innerWidth / worldGrid[0].length);
+    blockWidth = blockHeight; //window.innerWidth / worldGrid[0].length;
     drawGrid();
-    var blockHeight = Math.min(window.innerHeight / worldGrid.length, window.innerWidth / worldGrid[0].length);
-    var blockWidth = blockHeight; //window.innerWidth / worldGrid[0].length;
     baseBlock = new Block("Test", 0, 0, 0, blockWidth, blockHeight, 0xFF700B);
     stage.addChild(baseBlock.graphics);
     animate();
 }
 
 
-
 function drawGrid() {
-    var graphics2 = new PIXI.Graphics();
-    // set a fill and line style
-    graphics2.lineStyle(4, 0xffd900, 1);
+    let r;
+    var g = new PIXI.Graphics();
+    g.lineStyle(4, 0xffd900, 1);
 
-    // draw a shape
-    
-    for(var r = 0; r<worldGrid.length; r++){
-        var newY = r * (window.innerHeight / worldGrid.length);
-        graphics2.moveTo(0,newY);
-        graphics2.lineTo(window.innerWidth, newY);
+    var blockSize = blockWidth;
+
+    var startX = Math.floor(startXOffset);
+    var endX = Math.floor(window.innerWidth - startXOffset);
+    var numCols = Math.floor((endX - startX) / blockSize);
+    endX = startX + numCols * blockSize;
+
+    var startY = Math.floor(startYOffset);
+    var endY = Math.floor(window.innerHeight - startYOffset);
+    var numRows = Math.floor((endY - startY) / blockSize);
+    endY = startY + numRows * blockSize;
+
+    for (let r = 0; r <= numRows; r++) {
+        let yPos = Math.floor(startY + r * blockSize);
+        g.moveTo(startX, yPos);
+        g.lineTo(endX, yPos);
     }
 
-    for(var r = 0; r<worldGrid[0].length; r++){
-        var newX = r * (window.innerWidth / worldGrid[0].length);
-        graphics2.moveTo(newX, 0);
-        graphics2.lineTo(newX, window.innerHeight);
+    for (let c = 0; c <= numCols; c++) {
+        let xPos = Math.floor(startX + c * blockSize);
+        g.moveTo(xPos, startY);
+        g.lineTo(xPos, endY);
     }
 
-    stage.addChild(graphics2);
+    stage.addChild(g);
+
+
 }
 
 
- 
 function animate() {
     requestAnimationFrame(animate);
     //console.log("Hello");
@@ -85,33 +104,27 @@ function animate() {
 }
 
 
-
-
-
-
-
- 
-window.addEventListener("keydown", function(event) {
+window.addEventListener("keydown", function (event) {
     state.keys[event.keyCode] = true;
     console.log(event.keyCode);
 });
- 
-window.addEventListener("keyup", function(event) {
+
+window.addEventListener("keyup", function (event) {
     state.keys[event.keyCode] = false;
 });
- 
-window.addEventListener("mousedown", function(event) {
+
+window.addEventListener("mousedown", function (event) {
     state.clicks[event.which] = {
         "clientX": event.clientX,
         "clientY": event.clientY
     };
 });
- 
-window.addEventListener("mouseup", function(event) {
+
+window.addEventListener("mouseup", function (event) {
     state.clicks[event.which] = false;
 });
- 
-window.addEventListener("mousemove", function(event) {
+
+window.addEventListener("mousemove", function (event) {
     state.mouse.clientX = event.clientX;
     state.mouse.clientY = event.clientY;
 });
@@ -119,16 +132,16 @@ window.addEventListener("mousemove", function(event) {
 
 class Block {
     constructor(id, x, y, z, width, height, color) {
-        this.id = id
-        this.x = x
-        this.y = y
-        this.z = z
-        this.width = width
-        this.height = height
-        this.color = color
+        this.id = id;
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.width = width;
+        this.height = height;
+        this.color = color;
         this.createGraphics();
     }
-    
+
     createGraphics() {
         this.graphics = new PIXI.Graphics();
         this.graphics.lineStyle(0);
@@ -136,36 +149,36 @@ class Block {
         this.graphics.drawRect(this.x, this.y, this.width, this.height);
         this.graphics.endFill();
     }
-    
+
     animate(state) {
         if (state.keys[37]) { // left
-        this.x = Math.max(
-            0, this.x - 5
-        );
-    }
- 
-    if (state.keys[39]) { // right
-        this.x = Math.min(
-            window.innerWidth - this.width, this.x + 5
-        );
-    }
-        
+            this.x = Math.max(
+                0, this.x - 5
+            );
+        }
+
+        if (state.keys[39]) { // right
+            this.x = Math.min(
+                window.innerWidth - this.width, this.x + 5
+            );
+        }
+
         if (state.keys[38]) { // up
-        this.y = Math.max(
-            0, this.y - 5
-        );
-    }
- 
-    if (state.keys[40]) { // down
-        this.y = Math.min(
-            window.innerHeight - this.height, this.y + 5
-        );
-    }
- 
-    if (state.clicks[1]) { // left click
-        this.x = state.clicks[1].clientX;
-    }
-        
+            this.y = Math.max(
+                0, this.y - 5
+            );
+        }
+
+        if (state.keys[40]) { // down
+            this.y = Math.min(
+                window.innerHeight - this.height, this.y + 5
+            );
+        }
+
+        if (state.clicks[1]) { // left click
+            this.x = state.clicks[1].clientX;
+        }
+
         this.graphics.x = this.x;
         this.graphics.y = this.y;
     }
