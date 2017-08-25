@@ -1,2 +1,2 @@
-# ElementalChampions
-A 1v1 Survival Game Based On The Original Snakes Game.
+# Poppers
+A new kind oF bubble to Pop!
