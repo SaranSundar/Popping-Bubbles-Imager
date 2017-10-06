@@ -1,2 +1,2 @@
 # Poppers
-A new kind oF bubble to Pop!
+A new kind of bubble to Pop!
